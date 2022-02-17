@@ -164,9 +164,6 @@ void FileWatcherWin32::run()
 
 			while ( ( res = GetQueuedCompletionStatus( mIOCP, &numOfBytes, &compKey, &ov, INFINITE ) ) != FALSE )
 			{
-				if (numOfBytes == 0){
-				 	numOfBytes = 1;
-				}
 				if ( compKey != 0 && compKey == reinterpret_cast<ULONG_PTR>( this ) )
 				{
 					break;
