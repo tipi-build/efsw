@@ -9,7 +9,7 @@ namespace efsw
 /// Unpacks events and passes them to a user defined callback.
 void CALLBACK WatchCallback(DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 {
-	if (dwNumberOfBytesTransfered == 0 || NULL == lpOverlapped)
+	if (NULL == lpOverlapped)
 	{
 		return;
 	}
@@ -19,6 +19,17 @@ void CALLBACK WatchCallback(DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOver
 	WatcherStructWin32 * tWatch = (WatcherStructWin32*) lpOverlapped;
 	WatcherWin32 * pWatch = tWatch->Watch;
 	size_t offset = 0;
+
+	/*
+	* If dwNumberOfBytesTransfered == 0, it means the buffer overflowed (too many changes between GetOverlappedResults calls). 
+	* Those events are lost, but at least we can refresh so subsequent changes are seen again.
+	*/
+
+	if (dwNumberOfBytesTransfered == 0 )
+	{
+		RefreshWatch(tWatch);
+		return;
+	}
 
 	do
 	{
