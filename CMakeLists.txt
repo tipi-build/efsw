@@ -7,7 +7,7 @@ include(GNUInstallDirs)
 find_package(Threads REQUIRED)
 
 option (VERBOSE "Build efsw with verbose mode.")
-option (CXX11 "Build efsw with C++11")
+option (NO_ATOMICS "Build efsw with C++11")
 option (BUILD_SHARED_LIBS "Build efsw as a shared library" ON)
 option (BUILD_TEST_APP "Build the test app")
 option (EFSW_INSTALL "Add efsw install targets" ON)
@@ -45,7 +45,7 @@ target_include_directories(efsw
 if (VERBOSE)
 	target_compile_definitions(efsw PRIVATE EFSW_VERBOSE)
 endif()
-if (CXX11)
+if (NOT NO_ATOMICS)
 	target_compile_definitions(efsw PRIVATE EFSW_USE_CXX11)
 	target_compile_features(efsw PRIVATE cxx_std_11)
 endif()
@@ -125,7 +125,7 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
-set(packageDestDir "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}")
+set(packageDestDir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 configure_package_config_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/efswConfig.cmake.in
@@ -135,7 +135,7 @@ configure_package_config_file(
 	NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 
-export(TARGETS efsw NAMESPACE efsw:: FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Targets.cmake)
+export(TARGETS efsw NAMESPACE efsw:: FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Targets.cmake)
 
 if(EFSW_INSTALL)
   install(TARGETS efsw EXPORT efswExport
@@ -143,15 +143,14 @@ if(EFSW_INSTALL)
   	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   )
-  
+
   install (
   	FILES
   		include/efsw/efsw.h include/efsw/efsw.hpp
-  		src/efsw/base.hpp src/efsw/System.hpp src/efsw/FileSystem.hpp
   	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/efsw
   )
-  
-  install(EXPORT efswExport NAMESPACE efsw:: DESTINATION "${packageDestDir}" FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
+
+  install(EXPORT efswExport NAMESPACE efsw:: DESTINATION "${packageDestDir}" FILE ${PROJECT_NAME}Targets.cmake)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/efswConfig.cmake DESTINATION "${packageDestDir}")
 endif()
 
